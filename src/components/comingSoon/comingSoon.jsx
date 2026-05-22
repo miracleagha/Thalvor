@@ -4,7 +4,7 @@ import './comingSoon.css'
 const comingSoon = () => {
   return (
     <div className='coming-soon'>
-      Coming Soon
+       Coming Soon
     </div>
   )
 }
