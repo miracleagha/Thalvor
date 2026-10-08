@@ -91,7 +91,7 @@ export default function Navbar() {
         </nav>
 
         {open && (
-          <div className="glass mt-2 overflow-hidden rounded-2xl border border-border/60 p-2 md:hidden">
+          <div className="mt-2 overflow-hidden rounded-2xl border border-border/70 bg-background/95 p-2 shadow-xl shadow-black/40 backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 md:hidden">
             <ul className="flex flex-col">
               {navLinks.map((l) => (
                 <li key={l.to}>
