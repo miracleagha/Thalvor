@@ -3,6 +3,7 @@ import { ArrowRight, Mail, MapPin, Sparkles, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { GithubIcon } from '@/components/ui/icons'
+import DownloadResumeButton from '@/components/ui/download-resume-button'
 import { profile } from '@/data/portfolio'
 
 const HERO_CHIPS = ['Node.js', 'TypeScript', 'React', 'Python', 'PostgreSQL', 'MongoDB', 'AWS', 'Docker']
@@ -44,12 +45,13 @@ export default function Hero() {
                 View Projects <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="lg">
+            <DownloadResumeButton size="lg" variant="secondary" />
+            <Button asChild variant="outline" size="lg">
               <a href={profile.github} target="_blank" rel="noreferrer">
                 <GithubIcon className="size-4" /> GitHub
               </a>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="ghost" size="lg">
               <a href={`mailto:${profile.email}`}>
                 <Mail className="size-4" /> Email
               </a>

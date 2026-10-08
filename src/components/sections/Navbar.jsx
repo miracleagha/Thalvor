@@ -3,6 +3,7 @@ import { Link } from 'react-scroll'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GithubIcon } from '@/components/ui/icons'
+import DownloadResumeButton from '@/components/ui/download-resume-button'
 import { navLinks, profile } from '@/data/portfolio'
 import { cn } from '@/lib/utils'
 
@@ -74,6 +75,14 @@ export default function Navbar() {
             >
               <GithubIcon className="size-4" />
             </a>
+            <DownloadResumeButton
+              size="sm"
+              variant="outline"
+              className="hidden lg:inline-flex"
+              label="Resume"
+              loadingLabel="Building…"
+              successLabel="Done"
+            />
             <Button asChild size="sm" className="hidden md:inline-flex">
               <Link to="contact" smooth offset={-80} duration={500}>
                 Hire Me
@@ -107,7 +116,8 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-              <li className="px-2 pt-2">
+              <li className="flex flex-col gap-2 px-2 pt-2">
+                <DownloadResumeButton variant="secondary" className="w-full" />
                 <Button asChild className="w-full">
                   <Link to="contact" smooth offset={-80} duration={500} onClick={() => setOpen(false)}>
                     Hire Me
