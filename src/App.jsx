@@ -1,39 +1,38 @@
-import React,  { useState, useEffect } from 'react'
-import Navbar from './components/navbar/navbar'
-import Hero from './components/hero/hero'
-import About from './components/about/about'
-import Portfolio from './components/portfolio/portfolio'
-import Programs from './components/Programs/programs'
-import Establishment from './components/Establishments/establishment'
-import Contact from './components/contact/contact'
-import Footer from './components/footer/footer'
-import Loader from './components/loader/loader'
+import { useEffect, useState } from 'react'
+import Navbar from '@/components/sections/Navbar'
+import Hero from '@/components/sections/Hero'
+import About from '@/components/sections/About'
+import TechStack from '@/components/sections/TechStack'
+import Experience from '@/components/sections/Experience'
+import Projects from '@/components/sections/Projects'
+import Education from '@/components/sections/Education'
+import Contact from '@/components/sections/Contact'
+import Footer from '@/components/sections/Footer'
+import Loader from '@/components/sections/Loader'
 
+export default function App() {
+  const [loading, setLoading] = useState(true)
 
-const App = () => {
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200)
+    return () => clearTimeout(timer)
+  }, [])
 
+  if (loading) return <Loader />
 
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 2000); // show loader 2.5s
-        return () => clearTimeout(timer);
-    }, []);
-
-
-    return loading ? (
-        <Loader/> ) : (
-    <div>
-        <Navbar/>
-        <Hero/>
-        <About/>
-        <Portfolio/>
-        <Programs/>
-        <Establishment/>
-        <Contact/>
-        <div className='container'><Footer/></div>
+  return (
+    <div className="relative min-h-screen antialiased">
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <TechStack />
+        <Experience />
+        <Projects />
+        <Education />
+        <Contact />
+      </main>
+      <Footer />
     </div>
-    )
+  )
 }
-
-export default App
