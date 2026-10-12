@@ -5,16 +5,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { GithubIcon } from '@/components/ui/icons'
-import { projects } from '@/data/portfolio'
+import { useRole } from '@/contexts/role-context'
 
-const FILTERS = [
+const DEFAULT_FILTERS = [
   { value: 'all', label: 'All' },
   { value: 'featured', label: 'Featured' },
-  { value: 'fullstack', label: 'Full-Stack' },
-  { value: 'backend', label: 'Backend' },
-  { value: 'ai', label: 'AI' },
-  { value: 'security', label: 'Security' },
-  { value: 'tooling', label: 'Tooling' },
 ]
 
 function ProjectCard({ p }) {
@@ -75,32 +70,36 @@ function ProjectCard({ p }) {
 }
 
 export default function Projects() {
-  const [filter, setFilter] = useState('all')
+  const role = useRole()
+  const filters = role.projectCategories ?? DEFAULT_FILTERS
+  const [filter, setFilter] = useState(filters[0]?.value ?? 'all')
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return projects
-    if (filter === 'featured') return projects.filter((p) => p.featured)
-    return projects.filter((p) => p.categories.includes(filter))
-  }, [filter])
+    const list = role.projects ?? []
+    if (filter === 'all') return list
+    if (filter === 'featured') return list.filter((p) => p.featured)
+    return list.filter((p) => p.categories && p.categories.includes(filter))
+  }, [filter, role.projects])
 
   return (
     <section id="projects" className="relative py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">// Projects</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Selected work
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            A mix of production systems, client builds, and open-source projects — from fintech wallets to
-            offline-first AI assistants.
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">
+            // {role.projectsEyebrow ?? 'Projects'}
           </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            {role.projectsHeading ?? 'Selected work'}
+          </h2>
+          {role.projectsBody && (
+            <p className="mt-4 text-muted-foreground">{role.projectsBody}</p>
+          )}
         </div>
 
         <Tabs value={filter} onValueChange={setFilter} className="mt-10">
           <div className="no-scrollbar -mx-4 overflow-x-auto px-4 pb-2">
             <TabsList className="mx-auto flex w-max">
-              {FILTERS.map((f) => (
+              {filters.map((f) => (
                 <TabsTrigger key={f.value} value={f.value}>
                   {f.label}
                 </TabsTrigger>

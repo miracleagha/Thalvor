@@ -1,9 +1,11 @@
 import { GraduationCap, Award, Heart } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { education, certifications, interests } from '@/data/portfolio'
+import { useRole } from '@/contexts/role-context'
 
 export default function Education() {
+  const role = useRole()
+
   return (
     <section id="education" className="relative py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -25,7 +27,7 @@ export default function Education() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              {education.map((e) => (
+              {role.education.map((e) => (
                 <div key={e.degree}>
                   <h4 className="font-semibold text-foreground">{e.degree}</h4>
                   <p className="text-sm text-muted-foreground">{e.school}</p>
@@ -47,7 +49,7 @@ export default function Education() {
             </CardHeader>
             <CardContent>
               <ul className="grid gap-3 sm:grid-cols-2">
-                {certifications.map((c) => (
+                {role.certifications.map((c) => (
                   <li
                     key={c.title}
                     className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3"
@@ -63,21 +65,23 @@ export default function Education() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="size-5 text-primary" />
-                Interests
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {interests.map((i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
-                  {i}
-                </Badge>
-              ))}
-            </CardContent>
-          </Card>
+          {role.interests && role.interests.length > 0 && (
+            <Card className="lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="size-5 text-primary" />
+                  Interests &amp; Strengths
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {role.interests.map((i) => (
+                  <Badge key={i} variant="secondary" className="text-sm">
+                    {i}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </section>

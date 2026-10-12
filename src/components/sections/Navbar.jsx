@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-scroll'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Repeat } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GithubIcon } from '@/components/ui/icons'
 import DownloadResumeButton from '@/components/ui/download-resume-button'
-import { navLinks, profile } from '@/data/portfolio'
+import { useRoleContext } from '@/contexts/role-context'
+import { profile } from '@/data/roles'
 import { cn } from '@/lib/utils'
 
 export default function Navbar() {
+  const { role, clearRole } = useRoleContext()
   const [sticky, setSticky] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -16,6 +18,14 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const navLinks = role?.navLinks ?? []
+  const activeRoleLabel = role?.navLabel ?? role?.cardTitle ?? ''
+
+  const handleSwitchRole = () => {
+    setOpen(false)
+    clearRole()
+  }
 
   return (
     <header
@@ -45,6 +55,11 @@ export default function Navbar() {
             <span className="hidden text-sm font-semibold tracking-wide sm:inline">
               miracle<span className="text-primary">.agha</span>
             </span>
+            {activeRoleLabel && (
+              <span className="ml-1 hidden rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground md:inline">
+                {activeRoleLabel}
+              </span>
+            )}
           </Link>
 
           <ul className="hidden items-center gap-1 md:flex">
@@ -66,6 +81,15 @@ export default function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleSwitchRole}
+              className="hidden md:inline-flex"
+              aria-label="Switch role"
+            >
+              <Repeat className="size-4" /> Switch Role
+            </Button>
             <a
               href={profile.github}
               target="_blank"
@@ -101,6 +125,11 @@ export default function Navbar() {
 
         {open && (
           <div className="mt-2 overflow-hidden rounded-2xl border border-border/70 bg-background/95 p-2 shadow-xl shadow-black/40 backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 md:hidden">
+            {activeRoleLabel && (
+              <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                Role · {activeRoleLabel}
+              </div>
+            )}
             <ul className="flex flex-col">
               {navLinks.map((l) => (
                 <li key={l.to}>
@@ -118,6 +147,13 @@ export default function Navbar() {
               ))}
               <li className="flex flex-col gap-2 px-2 pt-2">
                 <DownloadResumeButton variant="secondary" className="w-full" />
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSwitchRole}
+                >
+                  <Repeat className="size-4" /> Switch Role
+                </Button>
                 <Button asChild className="w-full">
                   <Link to="contact" smooth offset={-80} duration={500} onClick={() => setOpen(false)}>
                     Hire Me

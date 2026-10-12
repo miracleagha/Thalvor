@@ -1,36 +1,30 @@
 // ATS-friendly resume generator.
-// Uses jsPDF to emit a real text-based PDF (selectable, parse-able) with:
-//  - Standard sans-serif font (Helvetica, built-in)
-//  - Single column, standard section headings
-//  - No images, tables, icons, or decorative elements
-//  - Plain bullet points with the "•" character
+// Produces a real text-based PDF (selectable, searchable, parse-able) using jsPDF:
+//   - Standard sans-serif font (Helvetica, built into every PDF viewer)
+//   - Single column, standard section headings
+//   - No images, tables, icons, or decorative elements
+//   - Plain "•" bullets
+// The PDF is built from a role data object, so every role gets its own tailored resume.
 
 import { jsPDF } from 'jspdf'
-import {
-  profile,
-  about,
-  techStack,
-  experience,
-  projects,
-  education,
-  certifications,
-  interests,
-} from '@/data/portfolio'
+import { profile } from '@/data/roles'
 
 const PAGE_FORMAT = 'letter'
-const MARGIN = 48 // ~0.67 inch — tight enough for one page while staying ATS-safe
+const MARGIN = 48 // ~0.67 inch
 const BLACK = '#000000'
 const TEXT = '#111111'
 const MUTED = '#333333'
 
-export async function downloadResume() {
+export async function downloadResume(role) {
+  if (!role) throw new Error('downloadResume: a role must be provided')
+
   const doc = new jsPDF({ unit: 'pt', format: PAGE_FORMAT })
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const contentWidth = pageWidth - MARGIN * 2
   let y = MARGIN
 
-  // --- helpers ---------------------------------------------------------
+  // ---------------- helpers ----------------
   const ensure = (needed) => {
     if (y + needed > pageHeight - MARGIN) {
       doc.addPage()
@@ -86,24 +80,26 @@ export async function downloadResume() {
     y += 12
   }
 
-  // --- header ----------------------------------------------------------
+  const normalize = (s) => String(s ?? '').replace(/\s+/g, ' ').trim()
+
+  // ---------------- header ----------------
   setFont('bold', 20, BLACK)
   doc.text(profile.name.toUpperCase(), MARGIN, y)
   y += 22
 
   setFont('normal', 11, TEXT)
-  doc.text(profile.title, MARGIN, y)
+  doc.text(role.resumeTitle || role.cardTitle, MARGIN, y)
   y += 14
 
   setFont('normal', 9.5, MUTED)
-  const contactLine = [
-    profile.location,
+  const contactParts = [
+    role.location,
     profile.email,
-    profile.phone,
+    `${role.phone} (WhatsApp)`,
     `github.com/${profile.githubHandle}`,
-    'thalvor.onrender.com',
-  ].join('  |  ')
-  const contactLines = doc.splitTextToSize(contactLine, contentWidth)
+    profile.portfolioLabel,
+  ].filter(Boolean)
+  const contactLines = doc.splitTextToSize(contactParts.join('  |  '), contentWidth)
   for (const line of contactLines) {
     doc.text(line, MARGIN, y)
     y += 12
@@ -114,14 +110,15 @@ export async function downloadResume() {
   doc.line(MARGIN, y, MARGIN + contentWidth, y)
   y += 2
 
-  // --- summary ---------------------------------------------------------
+  // ---------------- summary ----------------
   sectionTitle('Professional Summary')
-  const cleanSummary = `${about.summary} ${about.focus}`.replace(/\s+/g, ' ').trim()
-  writeLines(cleanSummary, { size: 10, gap: 1.4 })
+  const summary = [role.summary, role.focus].map(normalize).filter(Boolean).join(' ')
+  writeLines(summary, { size: 10, gap: 1.4 })
 
-  // --- technical skills -----------------------------------------------
-  sectionTitle('Technical Skills')
-  for (const group of techStack) {
+  // ---------------- skills ----------------
+  const skillsTitle = role.id === 'full-stack' ? 'Technical Skills' : role.stackEyebrow || 'Skills'
+  sectionTitle(skillsTitle)
+  for (const group of role.stack) {
     const label = `${group.title}: `
     const value = group.items.join(', ')
 
@@ -142,27 +139,31 @@ export async function downloadResume() {
     y += 2
   }
 
-  // --- professional experience ----------------------------------------
+  // ---------------- experience ----------------
   sectionTitle('Professional Experience')
-  for (const role of experience) {
+  for (const r of role.experience) {
     ensure(32)
     setFont('bold', 10.5, BLACK)
-    const header = `${role.role} | ${role.company} | ${role.location}`
+    const parts = [r.role, r.company, r.location].filter(Boolean)
+    const header = parts.join(' | ')
     doc.text(header, MARGIN, y)
 
     setFont('italic', 10, MUTED)
-    const periodWidth = doc.getTextWidth(role.period)
-    doc.text(role.period, MARGIN + contentWidth - periodWidth, y)
+    if (r.period) {
+      const periodWidth = doc.getTextWidth(r.period)
+      doc.text(r.period, MARGIN + contentWidth - periodWidth, y)
+    }
     y += 14
 
-    for (const h of role.highlights) bullet(h)
-    if (role.achievement) {
+    for (const h of r.highlights) bullet(h)
+
+    if (r.achievement) {
       setFont('bold', 10, BLACK)
       ensure(13)
       doc.text('Key Achievement:', MARGIN + 10, y)
       const labelW = doc.getTextWidth('Key Achievement: ')
       setFont('normal', 10, TEXT)
-      const achLines = doc.splitTextToSize(role.achievement, contentWidth - 10 - labelW)
+      const achLines = doc.splitTextToSize(r.achievement, contentWidth - 10 - labelW)
       doc.text(achLines[0], MARGIN + 10 + labelW, y)
       y += 13
       for (let i = 1; i < achLines.length; i++) {
@@ -174,91 +175,108 @@ export async function downloadResume() {
     y += 6
   }
 
-  // --- selected projects ----------------------------------------------
-  sectionTitle('Selected Projects')
-  const orderedProjects = [
-    ...projects.filter((p) => p.featured),
-    ...projects.filter((p) => !p.featured),
-  ]
-  for (const p of orderedProjects) {
-    ensure(36)
-    setFont('bold', 10.5, BLACK)
-    doc.text(p.name, MARGIN, y)
+  // ---------------- projects (only if the role has them) ----------------
+  if (role.projects && role.projects.length > 0) {
+    sectionTitle('Selected Projects')
+    const ordered = [
+      ...role.projects.filter((p) => p.featured),
+      ...role.projects.filter((p) => !p.featured),
+    ]
+    for (const p of ordered) {
+      ensure(36)
+      setFont('bold', 10.5, BLACK)
+      doc.text(p.name, MARGIN, y)
 
-    setFont('italic', 9.5, MUTED)
-    const stackText = p.stack.join(', ')
-    const stackLines = doc.splitTextToSize(stackText, contentWidth - doc.getTextWidth(`${p.name}  —  `))
-    // Put stack on the same line as the name if it fits, otherwise on the next line
-    const nameW = doc.getTextWidth(`${p.name}  —  `)
-    if (stackLines.length === 1 && nameW + doc.getTextWidth(stackLines[0]) <= contentWidth) {
-      doc.text(`  —  ${stackLines[0]}`, MARGIN + doc.getTextWidth(p.name), y)
-      y += 13
-    } else {
-      y += 13
+      // Stack: on same line if it fits, else next line.
       setFont('italic', 9.5, MUTED)
-      const fullStackLines = doc.splitTextToSize(`Stack: ${stackText}`, contentWidth)
-      for (const line of fullStackLines) {
-        ensure(12)
-        doc.text(line, MARGIN, y)
-        y += 12
+      const stackText = p.stack.join(', ')
+      const nameW = doc.getTextWidth(`${p.name}  —  `)
+      const stackLineForSameLine = doc.splitTextToSize(stackText, contentWidth - nameW)
+      if (stackLineForSameLine.length === 1) {
+        doc.text(`  —  ${stackLineForSameLine[0]}`, MARGIN + doc.getTextWidth(p.name), y)
+        y += 13
+      } else {
+        y += 13
+        const stackLines = doc.splitTextToSize(`Stack: ${stackText}`, contentWidth)
+        for (const line of stackLines) {
+          ensure(12)
+          doc.text(line, MARGIN, y)
+          y += 12
+        }
       }
-    }
 
-    writeLines(p.description, { size: 10, gap: 1.35 })
+      writeLines(p.description, { size: 10, gap: 1.35 })
 
-    const links = []
-    if (p.github) links.push(`Repo: ${p.github}`)
-    if (p.demo) links.push(`Live: ${p.demo}`)
-    if (links.length) {
-      writeLines(links.join('   '), { size: 9.5, color: MUTED })
+      const links = []
+      if (p.github) links.push(`Repo: ${p.github}`)
+      if (p.demo) links.push(`Live: ${p.demo}`)
+      if (links.length) writeLines(links.join('   '), { size: 9.5, color: MUTED })
+      y += 4
     }
-    y += 4
   }
 
-  // --- education ------------------------------------------------------
+  // ---------------- role-specific extras ----------------
+  if (role.teachingApproach && role.teachingApproach.length > 0) {
+    sectionTitle('Teaching Approach')
+    for (const t of role.teachingApproach) bullet(t)
+  }
+
+  if (role.keyStrengths && role.keyStrengths.length > 0) {
+    sectionTitle('Key Strengths')
+    writeLines(role.keyStrengths.join(' • '), { size: 10 })
+  }
+
+  if (role.additionalStrengths && role.additionalStrengths.length > 0) {
+    sectionTitle('Additional Strengths')
+    for (const s of role.additionalStrengths) bullet(s)
+  }
+
+  if (role.strengths && role.strengths.length > 0) {
+    sectionTitle('Professional Strengths')
+    writeLines(role.strengths.join(' • '), { size: 10 })
+  }
+
+  // ---------------- education ----------------
   sectionTitle('Education')
-  for (const ed of education) {
+  for (const ed of role.education) {
     ensure(32)
     setFont('bold', 10.5, BLACK)
     doc.text(ed.degree, MARGIN, y)
-    setFont('italic', 10, MUTED)
-    const periodW = doc.getTextWidth(ed.period)
-    doc.text(ed.period, MARGIN + contentWidth - periodW, y)
+    if (ed.period) {
+      setFont('italic', 10, MUTED)
+      const periodW = doc.getTextWidth(ed.period)
+      doc.text(ed.period, MARGIN + contentWidth - periodW, y)
+    }
     y += 13
     writeLines(`${ed.school}, ${ed.location}`, { size: 10 })
-    writeLines(ed.detail, { size: 10 })
+    if (ed.detail) writeLines(ed.detail, { size: 10 })
   }
 
-  // --- certifications -------------------------------------------------
-  sectionTitle('Certifications & Training')
-  for (const c of certifications) {
-    bullet(`${c.title} — ${c.issuer}`)
+  // ---------------- certifications ----------------
+  if (role.certifications && role.certifications.length > 0) {
+    sectionTitle('Certifications & Training')
+    for (const c of role.certifications) bullet(`${c.title} — ${c.issuer}`)
   }
 
-  // --- interests ------------------------------------------------------
-  sectionTitle('Interests')
-  writeLines(interests.join(' • '), { size: 10 })
+  // ---------------- interests ----------------
+  if (role.interests && role.interests.length > 0) {
+    sectionTitle('Interests')
+    writeLines(role.interests.join(' • '), { size: 10 })
+  }
 
-  // --- metadata (helps recruiters & ATS) ------------------------------
+  if (role.availability) {
+    sectionTitle('Availability')
+    writeLines(role.availability, { size: 10 })
+  }
+
+  // ---------------- metadata (ATS keywords) ----------------
   doc.setProperties({
-    title: 'Full Stack Developer — Miracle Agha',
+    title: role.resumeTitle || role.cardTitle,
     subject: 'Resume',
     author: profile.name,
-    creator: 'Portfolio — thalvor.onrender.com',
-    keywords: [
-      'Full-Stack Developer',
-      'Backend Engineer',
-      'Node.js',
-      'React',
-      'TypeScript',
-      'Python',
-      'MongoDB',
-      'PostgreSQL',
-      'AWS',
-      'Docker',
-      'REST APIs',
-    ].join(', '),
+    creator: `Portfolio — ${profile.portfolioLabel}`,
+    keywords: (role.resumeKeywords ?? []).join(', '),
   })
 
-  doc.save('Full Stack Developer Miracle Agha.pdf')
+  doc.save(role.resumeFileName || `${role.cardTitle} — ${profile.name}.pdf`)
 }

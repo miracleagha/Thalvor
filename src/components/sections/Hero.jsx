@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { GithubIcon } from '@/components/ui/icons'
 import DownloadResumeButton from '@/components/ui/download-resume-button'
-import { profile } from '@/data/portfolio'
-
-const HERO_CHIPS = ['Node.js', 'TypeScript', 'React', 'Python', 'PostgreSQL', 'MongoDB', 'AWS', 'Docker']
+import { useRole } from '@/contexts/role-context'
+import { profile } from '@/data/roles'
 
 export default function Hero() {
+  const role = useRole()
+  const hasProjects = role.projects && role.projects.length > 0
+
   return (
     <section id="hero" className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
       <div className="pointer-events-none absolute inset-0 -z-10 grid-bg" />
@@ -30,19 +32,19 @@ export default function Hero() {
 
           <h2 className="mt-5 flex flex-wrap items-center justify-center gap-2 text-base text-muted-foreground sm:text-lg">
             <Terminal className="size-4 text-primary" />
-            <span className="font-mono text-foreground/90">Full-Stack Developer</span>
+            <span className="font-mono text-foreground/90">{role.heroTitle}</span>
             <span className="text-muted-foreground/60">|</span>
-            <span>Node.js, React, TypeScript &amp; APIs, Python</span>
+            <span>{role.heroSubtitle}</span>
           </h2>
 
           <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-            {profile.tagline}
+            {role.heroTagline}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">
-              <Link to="projects" smooth offset={-80} duration={500}>
-                View Projects <ArrowRight className="size-4" />
+              <Link to={hasProjects ? 'projects' : 'experience'} smooth offset={-80} duration={500}>
+                {hasProjects ? 'View Projects' : 'View Experience'} <ArrowRight className="size-4" />
               </Link>
             </Button>
             <DownloadResumeButton size="lg" variant="secondary" />
@@ -61,17 +63,17 @@ export default function Hero() {
           <div className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <MapPin className="size-3.5" />
-              {profile.location}
+              {role.location}
             </div>
             <span className="text-muted-foreground/40">·</span>
             <div className="flex items-center gap-1.5">
               <Sparkles className="size-3.5 text-primary" />
-              {profile.shortTitle}
+              {role.heroShort}
             </div>
           </div>
 
           <div className="mt-10 flex w-full flex-wrap items-center justify-center gap-2">
-            {HERO_CHIPS.map((t) => (
+            {role.heroChips.map((t) => (
               <span
                 key={t}
                 className="rounded-full border border-border/70 bg-card/60 px-3 py-1 font-mono text-xs text-muted-foreground backdrop-blur-sm"

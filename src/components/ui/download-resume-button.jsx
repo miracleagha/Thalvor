@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Download, Loader2, Check, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useRole } from '@/contexts/role-context'
 import { cn } from '@/lib/utils'
 
 /**
  * Lazy-loads jsPDF + the resume generator on click, so the bundle isn't paid for
- * on initial page load.
+ * on initial page load. Uses the currently active role.
  */
 export default function DownloadResumeButton({
   size = 'default',
@@ -15,14 +16,15 @@ export default function DownloadResumeButton({
   loadingLabel = 'Building PDF…',
   successLabel = 'Downloaded',
 }) {
+  const role = useRole()
   const [state, setState] = useState('idle') // idle | loading | success | error
 
   const onClick = async () => {
-    if (state === 'loading') return
+    if (state === 'loading' || !role) return
     setState('loading')
     try {
       const { downloadResume } = await import('@/lib/generate-resume')
-      await downloadResume()
+      await downloadResume(role)
       setState('success')
       setTimeout(() => setState('idle'), 2200)
     } catch (err) {
@@ -38,8 +40,8 @@ export default function DownloadResumeButton({
       size={size}
       variant={variant}
       onClick={onClick}
-      disabled={state === 'loading'}
-      aria-label="Download ATS-friendly resume as PDF"
+      disabled={state === 'loading' || !role}
+      aria-label={`Download ${role?.cardTitle ?? ''} resume as PDF`}
       className={cn(className)}
     >
       {state === 'loading' && (

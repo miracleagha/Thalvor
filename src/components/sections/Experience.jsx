@@ -1,9 +1,11 @@
 import { Briefcase, MapPin, Sparkles, CalendarDays } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { experience } from '@/data/portfolio'
+import { useRole } from '@/contexts/role-context'
 
 export default function Experience() {
+  const role = useRole()
+
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -21,7 +23,7 @@ export default function Experience() {
           />
 
           <div className="space-y-8">
-            {experience.map((e, i) => (
+            {role.experience.map((e, i) => (
               <div key={`${e.company}-${i}`} className="relative pl-12 sm:pl-16">
                 <div className="absolute left-0 top-6 flex size-8 items-center justify-center rounded-full border border-primary/40 bg-card sm:left-2">
                   <Briefcase className="size-4 text-primary" />
@@ -44,13 +46,15 @@ export default function Experience() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {e.tags.map((t) => (
-                          <Badge key={t} variant="outline" className="font-mono">
-                            {t}
-                          </Badge>
-                        ))}
-                      </div>
+                      {e.tags && e.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {e.tags.map((t) => (
+                            <Badge key={t} variant="outline" className="font-mono">
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <ul className="mt-5 space-y-2 text-sm leading-relaxed text-muted-foreground">

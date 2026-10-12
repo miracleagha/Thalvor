@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { RoleProvider, useRoleContext } from '@/contexts/role-context'
 import Navbar from '@/components/sections/Navbar'
 import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'
@@ -9,16 +10,11 @@ import Education from '@/components/sections/Education'
 import Contact from '@/components/sections/Contact'
 import Footer from '@/components/sections/Footer'
 import Loader from '@/components/sections/Loader'
+import RoleSelector from '@/components/sections/RoleSelector'
 
-export default function App() {
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200)
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (loading) return <Loader />
+function Portfolio() {
+  const { role } = useRoleContext()
+  if (!role) return <RoleSelector />
 
   return (
     <div className="relative min-h-screen antialiased">
@@ -28,11 +24,28 @@ export default function App() {
         <About />
         <TechStack />
         <Experience />
-        <Projects />
+        {role.projects && role.projects.length > 0 && <Projects />}
         <Education />
         <Contact />
       </main>
       <Footer />
     </div>
+  )
+}
+
+export default function App() {
+  const [booting, setBooting] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setBooting(false), 1200)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (booting) return <Loader />
+
+  return (
+    <RoleProvider>
+      <Portfolio />
+    </RoleProvider>
   )
 }

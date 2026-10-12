@@ -3,19 +3,24 @@ import { Mail, Phone, Send, Loader2, CheckCircle2, AlertCircle, MapPin } from 'l
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
-import { GithubIcon } from '@/components/ui/icons'
-import { profile } from '@/data/portfolio'
+import { GithubIcon, WhatsappIcon } from '@/components/ui/icons'
+import { useRole } from '@/contexts/role-context'
+import { profile } from '@/data/roles'
 
 const WEB3FORMS_KEY = 'a816cdef-a1dd-4aa7-948c-bb7f2d021e12'
 
 export default function Contact() {
+  const role = useRole()
   const [status, setStatus] = useState({ state: 'idle', message: '' })
 
   const onSubmit = async (event) => {
     event.preventDefault()
     const formData = new FormData(event.target)
     formData.append('access_key', WEB3FORMS_KEY)
-    formData.append('subject', `Portfolio contact from ${formData.get('name') || 'visitor'}`)
+    formData.append(
+      'subject',
+      `Portfolio (${role.cardTitle}) contact from ${formData.get('name') || 'visitor'}`,
+    )
     setStatus({ state: 'loading', message: '' })
 
     try {
@@ -44,7 +49,7 @@ export default function Contact() {
             Let's build something solid
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Open to backend / full-stack roles, contract work, and interesting collaborations.
+            Open to {role.cardTitle} roles, contract work, and interesting collaborations.
           </p>
         </div>
 
@@ -70,7 +75,7 @@ export default function Contact() {
               </a>
 
               <a
-                href={`tel:${profile.phone.replace(/\s/g, '')}`}
+                href={`tel:${role.phone.replace(/\s|\(|\)/g, '')}`}
                 className="group flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
               >
                 <div className="flex size-10 items-center justify-center rounded-md bg-primary/15 text-primary ring-1 ring-primary/30">
@@ -79,7 +84,24 @@ export default function Contact() {
                 <div>
                   <p className="text-xs text-muted-foreground">Phone</p>
                   <p className="text-sm font-medium text-foreground group-hover:text-primary">
-                    {profile.phone}
+                    {role.phone}
+                  </p>
+                </div>
+              </a>
+
+              <a
+                href={`https://wa.me/${profile.whatsapp}`}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3 transition-colors hover:border-emerald-400/50 hover:bg-emerald-400/5"
+              >
+                <div className="flex size-10 items-center justify-center rounded-md bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/30">
+                  <WhatsappIcon className="size-4" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">WhatsApp</p>
+                  <p className="text-sm font-medium text-foreground group-hover:text-emerald-300">
+                    Chat on WhatsApp
                   </p>
                 </div>
               </a>
@@ -107,7 +129,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Location</p>
-                  <p className="text-sm font-medium text-foreground">{profile.location}</p>
+                  <p className="text-sm font-medium text-foreground">{role.location}</p>
                 </div>
               </div>
             </CardContent>
@@ -141,6 +163,7 @@ export default function Contact() {
                 </div>
 
                 <input type="hidden" name="from_name" value="Thalvor Portfolio" />
+                <input type="hidden" name="role_context" value={role.cardTitle} />
                 <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} tabIndex="-1" autoComplete="off" />
 
                 <div className="flex items-center gap-3">
