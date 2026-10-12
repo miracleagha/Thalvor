@@ -20,6 +20,7 @@ export const profile = {
   portfolioLabel: 'thalvor.onrender.com',
   // WhatsApp uses an international format with no "+" or spaces.
   whatsapp: '2349160795546',
+  photo: '/myphoto.jpg',
 }
 
 // -----------------------------------------------------------------------------

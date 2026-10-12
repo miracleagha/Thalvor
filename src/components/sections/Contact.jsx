@@ -4,13 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
 import { GithubIcon, WhatsappIcon } from '@/components/ui/icons'
+import { Reveal } from '@/components/ui/reveal'
 import { useRole } from '@/contexts/role-context'
+import { useTheme } from '@/lib/role-themes'
 import { profile } from '@/data/roles'
+import { cn } from '@/lib/utils'
 
 const WEB3FORMS_KEY = 'a816cdef-a1dd-4aa7-948c-bb7f2d021e12'
 
 export default function Contact() {
   const role = useRole()
+  const theme = useTheme(role)
   const [status, setStatus] = useState({ state: 'idle', message: '' })
 
   const onSubmit = async (event) => {
@@ -42,19 +46,29 @@ export default function Contact() {
 
   return (
     <section id="contact" className="relative py-20 sm:py-28">
+      <div
+        aria-hidden
+        className={cn(
+          'pointer-events-none absolute right-0 top-10 -z-10 size-[520px] rounded-full blur-3xl',
+          theme.glowSoft,
+        )}
+      />
+
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">// Contact</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Let's build something solid
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Open to {role.cardTitle} roles, contract work, and interesting collaborations.
-          </p>
-        </div>
+        <Reveal>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className={cn('font-mono text-xs uppercase tracking-[0.2em]', theme.text)}>// Contact</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Let's build something solid
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Open to {role.cardTitle} roles, contract work, and interesting collaborations.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-5">
-          <Card className="lg:col-span-2">
+          <Card className={cn('lg:col-span-2 transition-colors', theme.cardHoverBorder)}>
             <CardHeader>
               <CardTitle>Reach me directly</CardTitle>
             </CardHeader>
@@ -135,7 +149,7 @@ export default function Contact() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3">
+          <Card className={cn('lg:col-span-3 transition-colors', theme.cardHoverBorder)}>
             <CardHeader>
               <CardTitle>Send a message</CardTitle>
             </CardHeader>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { RoleProvider, useRoleContext } from '@/contexts/role-context'
+import { RoleProvider } from '@/contexts/role-provider'
+import { useRoleContext } from '@/contexts/role-context'
 import Navbar from '@/components/sections/Navbar'
 import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'

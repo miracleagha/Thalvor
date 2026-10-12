@@ -1,9 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getRole, roles } from '@/data/roles'
-
-const STORAGE_KEY = 'thalvor.role'
-
-const RoleContext = createContext(null)
+import { RoleContext, STORAGE_KEY } from './role-context.js'
 
 export function RoleProvider({ children }) {
   const [roleId, setRoleId] = useState(() => {
@@ -16,7 +13,6 @@ export function RoleProvider({ children }) {
     }
   })
 
-  // Persist to localStorage whenever roleId changes
   useEffect(() => {
     if (typeof window === 'undefined') return
     try {
@@ -27,7 +23,6 @@ export function RoleProvider({ children }) {
     }
   }, [roleId])
 
-  // Scroll to top whenever a new role is picked
   useEffect(() => {
     if (!roleId || typeof window === 'undefined') return
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -47,16 +42,4 @@ export function RoleProvider({ children }) {
   )
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>
-}
-
-export function useRoleContext() {
-  const ctx = useContext(RoleContext)
-  if (!ctx) throw new Error('useRoleContext must be used inside <RoleProvider>')
-  return ctx
-}
-
-/** Convenience: returns the active role data (never null — components below the selector only mount when a role is picked). */
-export function useRole() {
-  const { role } = useRoleContext()
-  return role
 }

@@ -1,41 +1,60 @@
+import { motion } from 'motion/react'
 import { Briefcase, MapPin, Sparkles, CalendarDays } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Reveal, RevealGroup } from '@/components/ui/reveal'
+import { revealItem } from '@/lib/motion-variants'
 import { useRole } from '@/contexts/role-context'
+import { useTheme } from '@/lib/role-themes'
+import { cn } from '@/lib/utils'
 
 export default function Experience() {
   const role = useRole()
+  const theme = useTheme(role)
 
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">// Experience</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Where I've been building
-          </h2>
-        </div>
+        <Reveal>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className={cn('font-mono text-xs uppercase tracking-[0.2em]', theme.text)}>// Experience</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Where I've been building
+            </h2>
+          </div>
+        </Reveal>
 
         <div className="relative mt-14">
           <div
             aria-hidden
-            className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-border to-transparent sm:left-6"
+            className={cn(
+              'absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b via-border to-transparent sm:left-6',
+              theme.heroStyle === 'tech' && 'from-cyan-400/60',
+              theme.heroStyle === 'notebook' && 'from-emerald-400/60',
+              theme.heroStyle === 'warm' && 'from-amber-400/60',
+              theme.heroStyle === 'editorial' && 'from-violet-400/60',
+            )}
           />
 
-          <div className="space-y-8">
+          <RevealGroup className="space-y-8">
             {role.experience.map((e, i) => (
-              <div key={`${e.company}-${i}`} className="relative pl-12 sm:pl-16">
-                <div className="absolute left-0 top-6 flex size-8 items-center justify-center rounded-full border border-primary/40 bg-card sm:left-2">
-                  <Briefcase className="size-4 text-primary" />
+              <motion.div key={`${e.company}-${i}`} variants={revealItem} className="relative pl-12 sm:pl-16">
+                <div
+                  className={cn(
+                    'absolute left-0 top-6 flex size-8 items-center justify-center rounded-full border sm:left-2',
+                    theme.timelineDot,
+                  )}
+                >
+                  <Briefcase className="size-4" />
                 </div>
 
-                <Card className="group transition hover:border-primary/40">
+                <Card className={cn('group transition-colors', theme.cardHoverBorder)}>
                   <CardContent className="p-6 sm:p-7">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <h3 className="text-lg font-semibold">
                           {e.role} <span className="text-muted-foreground">·</span>{' '}
-                          <span className="text-primary">{e.company}</span>
+                          <span className={theme.text}>{e.company}</span>
                         </h3>
                         <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                           <span className="inline-flex items-center gap-1.5">
@@ -62,7 +81,7 @@ export default function Experience() {
                         <li key={j} className="flex gap-3">
                           <span
                             aria-hidden
-                            className="mt-2 inline-block size-1.5 shrink-0 rounded-full bg-primary/70"
+                            className={cn('mt-2 inline-block size-1.5 shrink-0 rounded-full', theme.text, 'bg-current opacity-80')}
                           />
                           <span>{h}</span>
                         </li>
@@ -70,19 +89,27 @@ export default function Experience() {
                     </ul>
 
                     {e.achievement && (
-                      <div className="mt-5 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
-                        <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+                      <div
+                        className={cn(
+                          'mt-5 flex items-start gap-3 rounded-lg border p-4',
+                          theme.heroStyle === 'tech' && 'border-cyan-400/20 bg-cyan-400/5',
+                          theme.heroStyle === 'notebook' && 'border-emerald-400/20 bg-emerald-400/5',
+                          theme.heroStyle === 'warm' && 'border-amber-400/20 bg-amber-400/5',
+                          theme.heroStyle === 'editorial' && 'border-violet-400/20 bg-violet-400/5',
+                        )}
+                      >
+                        <Sparkles className={cn('mt-0.5 size-4 shrink-0', theme.text)} />
                         <p className="text-sm text-foreground/90">
-                          <span className="font-semibold text-primary">Key impact — </span>
+                          <span className={cn('font-semibold', theme.text)}>Key impact — </span>
                           {e.achievement}
                         </p>
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </RevealGroup>
         </div>
       </div>
     </section>

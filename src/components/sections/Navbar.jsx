@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button'
 import { GithubIcon } from '@/components/ui/icons'
 import DownloadResumeButton from '@/components/ui/download-resume-button'
 import { useRoleContext } from '@/contexts/role-context'
+import { useTheme } from '@/lib/role-themes'
 import { profile } from '@/data/roles'
 import { cn } from '@/lib/utils'
 
 export default function Navbar() {
   const { role, clearRole } = useRoleContext()
+  const theme = useTheme(role)
   const [sticky, setSticky] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -47,16 +49,22 @@ export default function Navbar() {
             to="hero"
             smooth
             duration={500}
-            className="flex cursor-pointer items-center gap-2 pl-2"
+            className="flex cursor-pointer items-center gap-2 pl-1"
           >
-            <span className="relative inline-flex size-8 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/40">
-              <span className="font-mono text-sm font-bold text-primary">M</span>
+            <span className={cn('relative inline-flex size-9 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-background', theme.photoRing)}>
+              <img
+                src={profile.photo}
+                alt={profile.name}
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
             </span>
             <span className="hidden text-sm font-semibold tracking-wide sm:inline">
-              miracle<span className="text-primary">.agha</span>
+              miracle<span className={theme.text}>.agha</span>
             </span>
             {activeRoleLabel && (
-              <span className="ml-1 hidden rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground md:inline">
+              <span className={cn('ml-1 hidden rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider md:inline', theme.chip)}>
                 {activeRoleLabel}
               </span>
             )}
