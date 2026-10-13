@@ -12,6 +12,7 @@ import Contact from '@/components/sections/Contact'
 import Footer from '@/components/sections/Footer'
 import Loader from '@/components/sections/Loader'
 import RoleSelector from '@/components/sections/RoleSelector'
+import SwitchRolePrompt from '@/components/sections/SwitchRolePrompt'
 
 function Portfolio() {
   const { role } = useRoleContext()
@@ -28,6 +29,7 @@ function Portfolio() {
         {role.projects && role.projects.length > 0 && <Projects />}
         <Education />
         <Contact />
+        <SwitchRolePrompt variant="full" />
       </main>
       <Footer />
     </div>

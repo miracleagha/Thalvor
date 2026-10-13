@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { GithubIcon, WhatsappIcon } from '@/components/ui/icons'
 import DownloadResumeButton from '@/components/ui/download-resume-button'
 import ProfilePhoto from '@/components/ui/profile-photo'
+import SwitchRolePrompt from '@/components/sections/SwitchRolePrompt'
 import { useRole } from '@/contexts/role-context'
 import { useTheme } from '@/lib/role-themes'
 import { profile } from '@/data/roles'
@@ -109,6 +110,15 @@ export default function Hero() {
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
           {/* Copy */}
           <div className="text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="mb-5 flex justify-center lg:justify-start"
+            >
+              <SwitchRolePrompt variant="compact" />
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

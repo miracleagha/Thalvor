@@ -89,6 +89,16 @@ export default function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
+            {/* Switch Role — icon-only on mobile, labelled on md+ */}
+            <button
+              type="button"
+              onClick={handleSwitchRole}
+              aria-label="Switch role"
+              title="Switch role"
+              className="inline-flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+            >
+              <Repeat className="size-4" />
+            </button>
             <Button
               size="sm"
               variant="ghost"
@@ -98,6 +108,7 @@ export default function Navbar() {
             >
               <Repeat className="size-4" /> Switch Role
             </Button>
+
             <a
               href={profile.github}
               target="_blank"
